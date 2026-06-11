@@ -1,0 +1,42 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+generator client {
+  provider = "prisma-client-js"
+}
+model User {
+  id         String    @id @default(cuid())
+  name       String
+  email      String    @unique
+  password   String
+  isVerified Boolean   @default(false)
+  otpCode    String?
+  otpExpires DateTime?
+  resumes    Resume[]
+  createdAt  DateTime  @default(now())
+}
+
+model Resume {
+  id         String     @id @default(cuid())
+  fileName   String
+  fileUrl    String
+  fileData   String?    @db.Text
+  resumeText String?    @db.Text
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  analyses   Analysis[]
+  createdAt  DateTime   @default(now())
+}
+
+model Analysis {
+  id          String   @id @default(cuid())
+  score       Int
+  atsScore    Int
+  strengths   String[]
+  weaknesses  String[]
+  suggestions String[]
+  resumeId    String
+  resume      Resume   @relation(fields: [resumeId], references: [id])
+  createdAt   DateTime @default(now())
+}
